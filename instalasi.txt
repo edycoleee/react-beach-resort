@@ -1,0 +1,697 @@
+HOME-ROOM-SINGLEROOM-ERROR
+
+cmd promt : d:django/react/
+npx create-react-app resort 
+cd resort
+npm install react-icons
+npm install react-router-dom --save
+
+npm start
+
+delete App.css 
+delete logo.svg
+
+// include dihilangkan semua .. logo &index.css
+-------------------------------------------
+App.js
+
+import React from 'react';
+//import logo from './logo.svg';
+//import './App.css';
+
+function App() {
+  return (
+   <> Hello from app</>
+  );
+}
+
+export default App;
+------------------------------------------------------
+index.html
+
+<title>Resort Recording </title>
+-----------------------------------------------
+Download
+https://github.com/john-smilga/setup-files-react-beach-resort
+
+copy _redirects to /public
+copy App.css to /src
+copy folder images to /src
+copy data.js to /src
+
+-----------------------------------------------
+oke siap coding 00:21:00
+-----------------------------------------------
+CREATE PAGES
+
+create folder pages in /src
+es7 snippet => rafc/rafce/rafcp rfc/rcc
+create file Home.js in /pages => functional component =>rafce / rfc
+Hello dari Home Pages
+create file Room.js in /pages => functional component =>rafce /rfc
+Hello dari Room Pages
+create file SingleRoom.js in /pages => class component =>rcc
+Hello dari SingleRoom Pages
+create file Error.js in /pages => functional component =>rafce /rfc
+Hello dari Error Pages
+--------------------------------------------------
+ROUTING PAGES 
+
+App.js => import all pages file into it
+import Home from "./pages/Home";
+import Room from "./pages/Room";
+import SingleRoom from "./pages/SingleRoom";
+import Error from "./pages/Error";
+
+    <Home></Home>
+    <Room></Room>
+    <SingleRoom></SingleRoom>
+    <Error></Error>
+
+--------------------------------------------------
+React Router untuk melakukan routing pada halaman2
+React Router DOM
+index.js
+import {BrowserRouter as Router} from 'react-router-dom';
+
+    <Router>
+      <App />
+    </Router>
+--------------------------------------------00:28:00
+ERROR Pages dan ROUTING Pages
+
+Pemasangan Switch untuk memilih saat url tidak ditemukan
+maka akan mumcul halaman error
+Apps.js
+import {Route,Switch} from 'react-router-dom';
+
+    <Route exact path="/" component={Home} />
+    <Route exact path="/rooms/" component={Room} />
+    <Route exact path="/single-room" component={SingleRoom} />
+
+menghandle error page saat dipanggil tidak ketemu ditambah Switch
+untuk memanggil single room secara dinamis maka path="/rooms/:slug"
+   <Switch>
+    <Route exact path="/" component={Home} />
+    <Route exact path="/rooms/" component={Room} />
+    <Route exact path="/rooms/:slug" component={SingleRoom} />
+    <Route component={Error}/>
+   </Switch>
+
+untuk belajar lebih lanjut bisa ke
+https://reacttraining.com/react-router/web/example/url-params
+---------------------------------------------
+NavBar Dinamis
+
+Navbar yang bisa dinamis, saat posisi halaman full maka navbar 
+akan muncul Home dan Rooms, sedangkan saat posisi halaman
+sempit maka akan tampak icon navbar dan sat di klik 
+baru muncul pilihan menu navbar (react-icons)
+
+Create folder component in /src
+creafe file Navbar.js in /component =>rcc
+
+import React, { Component } from 'react'
+
+export default class Navbar extends Component {
+    render() {
+        return (
+            <div>
+                Hello from navbar
+            </div>
+        )
+    }
+}
+
+-----------------------------------------------
+App.js
+import Navbar from './component/Navbar';
+
+<Navbar />
+
+Navbar berada diatas switch karena akan di render 
+ke semua halaman
+----------------------------------------------40:00
+App.css => comment pada beberapa baris Ctrl+K+C
+.nav-links {
+  /* height: 0;
+  overflow: hidden; */
+  transition: var(--mainTransition);
+  list-style-type: none;
+}
+
+
+https://react-icons.github.io/react-icons/
+Navbar.js
+
+import logo from '../images/logo.svg'
+import { FaAlignRight } from "react-icons/fa"
+import {Link} from 'react-router-dom'
+
+export default class Navbar extends Component {
+    state={
+        isOpen:false
+    }
+    handleToggle = () => {
+        this.setState({isOpen:!this.state.isOpen})
+    }
+    render() {
+        return (
+            <nav className="navbar">
+            <div className="nav-center">
+                <div className="nav-header">
+                    <Link to="/">
+                        <img src={logo} alt="Beach Resort" />
+                    </Link>
+                    <button
+                        type="button" 
+                        className="nav-btn"
+                        onClick={this.handleToggle}
+                        >
+                            <FaAlignRight className="nav-icon" />
+                        </button>
+                </div>
+                <ul
+                    className={this.state.isOpen ? "nav-links show-nav" : "nav-links"}>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/Rooms">Rooms</Link>
+                        </li>
+                </ul>                
+            </div>
+            </nav>
+        )
+    }
+}
+
+link akan selalu terender jika berada pada posisi di bawah navbar secara langsung
+maka :
+1. link musti dipindah ke file tersendiri utk di render saat dibutuhkan saja
+2. atau menggunakan state utk mengaktifkan clas yang berbeda, dan class ini di gunakan di css
+yg pertama navbar akan hide dan akan aktif jika di klik => overflow="hidden"
+.nav-links {
+  height: 0;
+  overflow: hidden;
+  transition: var(--mainTransition);
+  list-style-type: none;
+}
+
+-----------------------------------------------------------52:34
+BACKGROUND
+Background disebut Hero ini tampil pada Home dan Error Pages
+
+Hero.js di dalam /src =>rfc
+import React from 'react'
+
+export default function Hero({children,hero}) {
+    return (
+        <div>
+           <header className={hero}>{children}</header> 
+        </div>
+    )
+}
+
+------------------------------------------
+Memasang background untuk halaman Home dan halaman error
+Home.js =>memasukkan hero yaitu className pada App.css
+<Hero hero="defaultHero" />
+
+mengacu pada App.css
+/* Hero */
+.defaultHero,
+.roomsHero {
+  min-height: calc(100vh - 66px);
+  background: url("./images/defaultBcg.jpeg") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.roomsHero {
+  background-image: url("./images/room-2.jpeg");
+  min-height: 60vh;
+}
+/* End of Hero */
+
+--------------------------------------------
+Halaman home tidak mendapatkan kirimam props dari navbar 
+maka dibuatkan default props, posisi di akhir
+Home.js
+
+Hero.defaultProps = {
+    hero: "defaultHero"
+};
+
+-------------------------------------------
+halaman Rooms akan mengirimkan bacground yang berbeda dengan Home
+dengan cara mengirimkan props hero="roomsHero" 
+Room.js
+
+<Hero hero="roomsHero" />;
+
+-------------------------------------------
+halaman Error akan mendapatkan bagcroun yang sama dengan home 
+maka tidak mengirimkan props
+Error.js
+
+<Hero />
+
+--------------------------------------------
+Home.js
+
+<Hero />
+
+----------------------------------------------01:00:00
+BANNER
+Untuk menampilkan banner diatas bacground maka di buat
+file Banner.js dalam /component =>rfc
+melakukan passing 3 comp({children,title,subtitle})
+
+import React from 'react'
+
+export default function Banner({children,title,subtitle}) {
+    return (
+        <div className="banner">
+            <h1>{title}</h1>
+            <div></div>
+            <p>{subtitle}</p>
+            {children}
+        </div>
+    );
+}
+
+----------------------------------------------
+Pemasangan Banner pada Home melakukan parsing props
+title="luxurious rooms"
+subtitle="deluxe rooms starting at Rp100"
+children berupa link
+<Link to='/rooms' className="btn-primary">our rooms</Link>
+
+Home.js
+
+import Banner from '../component/Banner'
+import { Link } from 'react-router-dom'
+
+const Home = () => {
+    return (
+        <div>
+            <Hero>
+                <Banner title="luxurious rooms" 
+                    subtitle="deluxe rooms starting at Rp100">
+                        <Link to='/rooms' className="btn-primary">
+                            our rooms
+                        </Link>
+                </Banner>
+            </Hero>
+        </div>
+    )
+}
+
+------------------------------------------------------
+Pemasangan Banner pada Error melakukan parsing props
+title='404'
+subtitle='page not found'
+children berupa link
+<Link to='/' className="btn-primary">return home </Link>
+
+Error.js
+
+import Banner from '../component/Banner'
+import { Link } from 'react-router-dom';
+
+export default function Error() {
+    return (
+        <div>
+            <Hero>
+             <Banner title='404' subtitle='page not found'>
+             <Link to='/' className="btn-primary">
+                return home </Link>
+             </Banner>
+            </Hero>
+        </div>
+    );
+}
+---------------------------------------------------------
+Pemasangan Banner pada Rooms
+
+import Banner from '../component/Banner'
+import { Link } from 'react-router-dom'
+
+const Room = () => {
+    return (
+        <div>
+            <Hero hero="roomsHero">
+                <Banner title="our rooms" subtitle="">
+                    <Link to='/' className="btn-primary">return home</Link>
+                </Banner>
+            </Hero>;
+        </div>
+    )
+}
+
+-------------------------------------------------------01:10:
+Pembuatan content pada Home 
+membuat file Services.js pada /component =>rcc
+
+		<div>
+                Hello from services
+            	</div>
+
+
+membuat file Title.js pada /component =>rfc =>dg 1 prop {title}
+
+        <div className="section-title">
+            <h4>{title}</h4>
+            <div></div>
+        </div>
+
+kembali ke Services.js
+
+<Title title="services"></Title>  
+
+penambahan di Home.js diposisikan setelah bacground/Hero
+<Services />
+
+------------------------------------------------------
+Penambahan icon pada content services, import react icons
+Penambahan content dummy sebagai json array dan ditampilkan
+this.state.services.map((item, index) =>{return(.. bla bla
+
+import { FaCocktail, FaHiking, FaShuttleVan, FaBeer} from "react-icons/fa"
+
+export default class Services extends Component {
+    state={
+        services:[
+            {
+                icon:<FaCocktail/>,
+                title:"free cocktail",
+                info:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+            },
+            {
+                icon:<FaHiking/>,
+                title:"free hiking",
+                info:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+            },
+            {
+                icon:<FaShuttleVan/>,
+                title:"free shuttlevan",
+                info:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+            },
+            {
+                icon:<FaBeer/>,
+                title:"free beer",
+                info:"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,"
+            }
+        ]
+    }
+    render() {
+        return (
+            <div className="services">                
+                <Title title="services"></Title>
+                <div className="services-center">
+                    {this.state.services.map((item, index) =>{
+                        return (
+                            <article key={index} className="services">
+                                <span>{item.icon}</span>
+                                <h6>{item.title}</h6>
+                                <p>{item.info}</p>
+                            </article>
+                        )
+                    }
+                    )}
+                </div>
+            </div>
+        )
+    }
+}
+
+------------------------------------------------------
+untuk uppercase pada text <h6> di app.css
+.services h6 {
+  letter-spacing: var(--mainSpacing);
+  text-transform: capitalize;
+}
+--------------------------------------------------1:34:
+Pengisian Content menggunakan data.js bukan database
+tapi sebenernya sama saja tingga diubah API pakai axios utk langsung ambil dari database
+dalam melakukan lempar melempar parameter menggunakan context
+membuat Provider dan Consumer
+context.js didalam /src
+
+import React, { Component } from 'react'
+
+const RoomContext = React.createContext();
+//<RoomContext.Provider value={'hello'}
+
+class RoomProvider extends Component {
+    state ={};
+    render() {
+        return (
+            <div>
+               <RoomContext.Provider value="hello">
+                   {this.props.children}
+               </RoomContext.Provider>
+            </div>
+        );
+    }
+}
+
+const RoomConsumer = RoomContext.Consumer;
+
+export { RoomProvider, RoomConsumer, RoomContext};
+----------------------------------------------------------
+wrapping contect to index.js
+
+    <RoomProvider>
+    <Router>
+      <App />
+    </Router>
+    </RoomProvider>
+
+-------------------------------------------------------
+Feature Room pada isi content agar dinamis maka dibuatkan sebuah komponen
+
+FeaturedRooms.js dalam /component =>rcc
+	<div>
+                Hello from Featured Rooms
+        </div>
+
+dan dalam home.js
+<FeaturedRooms />
+
+belum ada perubahan dinamis masih statis, utk mengubah menjadi 
+dinamis https://reactjs.org/docs/context.html
+
+context.js parsing value
+<RoomContext.Provider value={"hello"}>
+
+FeaturedRoom.js sesuai tutorial web maka 
+nilai yang diparsing diambil didalam class
+import React, { Component } from 'react'
+import { RoomContext } from "../context"
+
+export default class FeaturedRooms extends Component {
+    static contextType = RoomContext
+    render() {  
+        const value = this.context;
+        console.log(value);
+        return (
+            <div>
+                {value}
+                Hello from Featured Rooms
+            </div>
+        )
+    }
+}
+
+----------------------------------------------------1:45:
+contoh untuk parsing objectdan copy semua object tsb {...this.state}
+pada context.js
+
+state ={
+        greeting :"hello",
+        name:"joni"
+    };
+
+<RoomContext.Provider value={{...this.state}}>
+
+pada featuredroom.js untuk mengambil object 
+        const value = this.context;
+        console.log(value);
+
+maka akan terlihat pada console log bahwa object tsb name:,greeting:
+maka dalam pengambilan langsung kedalam object tsb
+ 
+const {name,greeting} = this.context;
+
+	<div>
+          {name}{greeting}Hello from Featured Rooms
+        </div>
+
+-------------------------------------------------------
+Untuk mengambil data yang ada di data.js maka pada context.js
+siapkan object pada state, getData, fromatData dg object baru
+import items from './data'
+
+
+class RoomProvider extends Component {
+    state ={
+        rooms : [],
+        sortedRooms: [],
+        featuredRooms: [],
+        loading: true     
+    };
+
+    //getData
+    componentDidMount(){
+        let rooms = this.formatData(items)
+        //console.log(rooms);
+        let featuredRooms = rooms.filter(room => room.featured === true);
+        this.setState({
+            rooms, 
+            featuredRooms, 
+            sortedRooms : rooms, 
+            loading : false
+        });        
+    }
+
+    formatData(items){
+        let tempItems = items.map(item =>{
+            let id = item.sys.id;
+            let images = item.fields.images.map(image => image.fields.file.url);
+            let room = { ...item.fields,images,id};
+            return room;
+        });
+        return tempItems;
+    }
+----------------------------------------------------
+panggil di FeaturedRoom.js
+
+        const {featuredRooms : rooms} = this.context 
+        console.log(rooms);
+
+dengan ada filter yg hanya featured=true maka hasilnya hanya 3room
+-----------------------------------------
+Tampilan pada featuredRoom maka dibutuhkan 
+membuat komponen Loading.js pada /component =>rfc
+agar pada saat loading akan muncul gambar ini, jika inetet lemot
+import React from 'react'
+import loadingGif from '../images/gif/loading-arrow.gif';
+
+export default function Loading() {
+    return (
+        <div className="loading">
+            <h4>Room Data Loading ...</h4>
+            <img src={loadingGif} alt="" />
+        </div>
+    )
+}
+-----------------------------------------------
+memanggil loading pada FeaturedRoom.js
+<Loading />
+-----------------------------------------2:10:
+Menampilkan Room componen pada Room.js di /component +>rfc
+        <div>
+            Hello From Rooms
+        </div>
+----------------------------------------
+memanggil loading pada FeaturedRoom.js
+<Room />
+--------------------------------------
+memanggil room dengan setelah map data yang di filter dengan 3 data  rooms = rooms.map(room => {...
+dan jika data belum tersaji maka akan muncul tampilan loading {loading?<Loading/>: rooms}
+FeaturedRoom.js
+
+   render() {  
+        // const value = this.context;
+        // console.log(value);
+        let {loading, featuredRooms : rooms} = this.context 
+        console.log(rooms);
+        rooms = rooms.map(room => {
+            return (
+                <Room key = {room.id} room ={room}/>
+            )
+        })
+
+        return (
+            <div className="featured-rooms">
+                <Title title="featured rooms" />
+                <div className="featured-rooms-center">
+                    {loading?<Loading/>: rooms}
+                </div>
+            </div>
+        )
+    }
+---------------------------------------------------
+untuk melihat data apa saja yang bisa ditangkap di Room.js
+maka gunakan console log
+
+export default function Room({room}) {
+    console.log(room);
+
+---------------------------------------------------
+setelah didapat maka ambil data dan urutkan sasuai yang dibutuhkan
+contohnya awal kita memunculkan gambarnya saja Room.js
+
+export default function Room({room}) {
+    //console.log(room);
+    let {name,slug,images,prices} = room;
+    return (
+        <article className="room">
+            <div className="img-container">
+                <img src={images[0]} alt="single room" />
+            </div>
+        </article>
+    )
+}
+------------------------------------------------------
+karena image kadang lama atau belum diisi maka akan muncul tulisan alt="single room"
+untuk menghindari kekosongan ini maka di munculkan default image
+Room.js
+
+import defaultImg from '../images/room-1.jpeg'
+
+<img src={images[0] || defaultImg} alt="single room" />
+
+dengan perintah itu maka jika image kosong maka akan diisi oleh default image
+--------------------------------------------------------------
+Okeh tampilkan semua data ke room.js
+export default function Room({room}) {
+    //console.log(room);
+    let {name,slug,images,price} = room;
+    return (
+        <article className="room">
+            <div className="img-container">
+                <img src={images[0] || defaultImg} alt="single room" />
+                <div className="price-top">
+                    <h6>Rp{price}</h6>
+                    <p>per night</p>
+                </div>
+                <Link to={`/rooms/${slug}`} 
+                className="btn-primary room-link">Features</Link>
+            </div>
+            <p className="room-info">{name}</p>
+        </article>
+    );
+}
+
+-----------------------------------------------------------------
+Bagaimana jika data yang diambil berbeda tipe dengan yang akan ditampilkan
+maka perlu cek parameter, cek apakah parameter sudah tersedia semua,
+jika tidak sesuai maka akan muncul di console.log, buat fungsi cek type
+Room.js
+import PropTypes from "prop-types";
+
+Room.propTypes = {
+    room:PropTypes.shape({
+        name:PropTypes.string.isRequired,
+        slug:PropTypes.string.isRequired,
+        images:PropTypes.arrayOf(PropTypes.string).isRequired,
+        price:PropTypes.number.isRequired
+    })
+}
+
+----------------------------------------------------------------
+
+

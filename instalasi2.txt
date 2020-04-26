@@ -1,0 +1,495 @@
+
+Single Room ------------------------------------------2:36:
+untuk mencari satu room lemparan dari slug halaman home
+maka pada context.js perlu ditambah fungsi getRoom
+
+    getRoom = (slug) => {
+        let tempRooms = [...this.state.rooms];
+        const room = tempRooms.find(room => room.slug === slug);
+        return room;
+    };
+
+    render() {
+        return (
+            <div>
+               <RoomContext.Provider value={{ 
+                   ...this.state,
+                   getRoom: this.getRoom
+                    }}>
+                   {this.props.children}
+               </RoomContext.Provider>
+            </div>
+        );
+    }
+
+--------------------------------------------------------
+SingleRoom.js akan melakukan akses banyak parameter 
+untuk melihat parameter apa yang dikirim maka di console dahulu
+
+export default class SingleRoom extends Component {
+    constructor(props){
+        super(props)
+        console.log(this.props);    
+    }
+
+dari sini bisa dilihat pada console log, parameter pentingnya berada
+match:params: slug: "double-deluxe"
+maka komponen ini yang akan menjadi filter pada halaman single room
+jadi pada single room ada 3 bagian, ambil prop; handle error ; heroku bacground
+untuk menjadikan bacgroung dinamis sangatlah memakan tenaga coding
+mau diambil dari css atau mau di tulis di js sama juga repot
+maka digunakan library style component 
+https://styled-components.com/docs/basics
+npm install --save styled-components
+------------------------------------------------------
+buat file StyledHero.js
+contohnya dalam parsing variable style kedalam style componen
+membuat button 
+const orange = "#f15025"
+const SimpleButton = styled.button`
+color: ${orange};
+background: green;
+font-size: 3rem;
+`;
+
+export default SimpleButton;
+---------------------------
+kemudian di render pada Home.js
+import Button from '../component/StyledHero'
+
+<Button> test</Button>
+
+pada kompnen diatas bisa dilihat bahwa color: ${orange}; 
+ini menjadi dinamis sehingga bisa di parsing variable
+-----------------------------------------------------03:03:
+oke, melanjutkan render gambar pada syle componen
+masih contoh melakukan perubahan style deng inject react 
+StyledHero.js
+import defaultImg from '../images/room-1.jpeg'
+
+const StyledHero = styled.header`
+min-height: 60vh;
+background: url(${defaultImg}) center/cover no-repeat;
+display: flex;
+align-items: center;
+justify-content: center;
+`;
+export default StyledHero;
+
+maka akan tampil image yang kita inhect default ke function
+-------------------------------------------------------------
+kemudian di button pada Home.js dihilangkan semua
+delete 
+import Button from '../component/StyledHero'
+<Button> test</Button>
+-----------------------------------------------------------
+StyledHero.js parsing props.img
+
+background: url(${props => props.img}) center/cover no-repeat;
+
+------------------------------------------------------------
+SingleRoom.js import dan kirim props
+import StyledHero from '../component/StyledHero'
+
+                <StyledHero img={images[0]} >
+                    <Banner title={`${name} room` }>
+                        <Link to='/rooms' className="btn-primary">
+                            Back to rooms
+                        </Link>
+                    </Banner>
+                </StyledHero>
+--------------------------------------------------------if sederhana
+untuk menghindari props kosong maka dibuatkan default dengan if
+background: url(${props => (props.img ? props.img:defaultImg)}) center/cover no-repeat;
+
+dan juga di SingleRoom.js jika images[0] tidak ketemu maka defaultBcg
+<StyledHero img={images[0] || this.state.defaultBcg} >
+---------------------------------------------------------map data
+untuk menampilkan gambar dari array dengan cara map images
+dan menampilkan gambar yang pertama array images[0] ke gambar utama
+
+<div className="single-room-images">
+{images.map((item,index) =>{
+   return <img key={index} src={item} alt={name} />;
+   })}
+</div>
+
+--------------------------------------------------------- map selector
+menampilkan di gambar utama images[0] atau array1 dan
+gambar lainnya ke map berikutnya  utk ditampilkan dibawah
+caranya menamakan images[0] dengan mainImg kemudian array berikutnya ... 
+maka pemanggilannya array[0]=mainImg dan array [1] dst=defaultImg
+
+const [mainImg,...defaultImg] = images;
+console.log(defaultImg);
+
+<StyledHero img={mainImg || this.state.defaultBcg}>
+
+{defaultImg.map((item,index) =>{
+ return <img key={index} src={item} alt={name} />;})}
+
+------------------------------------------------LOGIKA
+menampilkan semua props yang ada
+ <h6>size : Rp{size} SQFT</h6>
+
+menampilkan capacity
+jika nilai >1, maka >1 people, atau 1 person
+<h6>max capacity : 
+{capacity > 1 ? `${capacity} people`: `${capacity} person`}</h6>
+
+menampilkan pets
+jika true, maka pets allowed, atau jika false no pets allowed
+<h6>{pets?"pets allowed":"no pets allowed"}</h6>
+
+menampilkan breakfast
+jika true, maka free breakfast included
+<h6>{breakfast && "free breakfast included"}</h6>
+
+melakukan iterasi untuk menampilkan array dengan map
+<ul className="exrtas">
+{extras.map((item,index)=>{return <li key={index}>{item}</li>})}
+</ul>
+-----------------------------------------------------------3:34:
+membuat filter pada halaman Rooms
+membutuhkan 3 container
+RoomsContainer.js RoomList.js RoomFilter.js =>rfc
+RoomsContainer.js
+<div>
+  Hello from Rooms Container
+  <RoomFilter/>
+  <RoomList/>
+</div>
+
+tampilkan di Room.js /pages
+<RoomsContainer/>
+--------------------------------------------------------3:43:
+membuat consumer dengan HOC high Order Component
+pada context.js membuat HOC utk menangkap props
+
+export function withRoomConsumer(Component){
+    return(
+        function ConsumerWrapper(props){
+            return (
+                <RoomConsumer>
+                    {value => <Component{...props} context={value}/>}
+                </RoomConsumer>
+            )
+        }
+    )
+}
+
+kemudian pada RoomContainer.js, semua akan dikirim ke context
+function RoomContainer({context}) {
+    const {loading,sortedRooms,rooms} = context;
+                    if (loading) {
+                    return <Loading />;
+                }
+                return (
+                    <div>                        
+                        <RoomFilter rooms={rooms} />
+                        <RoomList rooms={sortedRooms} />
+                    </div>
+                );
+}
+
+export default withRoomConsumer(RoomContainer);
+
+-----------------------------------------------------------Ctrl+K+D, Ctrl+K+C, Ctrl+K+U
+Roomlist.js menampilkan semua room tanpa dilakukan filtering
+yaitu menampilkan isi rooms yang ada di context, dan jika 
+rooms isinya kosong/0 maka tampilkan bla bla.. , jika 
+room tidak 0 maka map semua isi room
+
+import React from 'react'
+import Room from '../component/Room'
+
+export default function RoomList({rooms}) {
+    if (rooms.length === 0) {
+        return(
+            <div className="empty-search">
+                <h3>
+                    Unfortunately no rooms matched your search parameter
+                </h3>
+            </div>
+        )
+    }
+    return (
+        <section className="roomslist">
+        <div className="roomslist-center">
+            {rooms.map(item => {
+                return(
+                    <Room key={item.id} room={item} />
+                )
+            })}
+            Hello from Room List
+        </div>
+        </section>
+    )
+}
+
+-------------------------------------------------------------
+Penambahan variable yang akan ditampilkan utk filtering
+pada context.js utk pencarian nantinya
+
+        type: 'all',
+        capacity: 1,
+        price: 0,
+        minPrice: 0,
+        maxPrice:0,
+        minSize:0,
+        maxSize:0,
+        breakfast:false,
+        pets:false
+
+untuk mencari nilai maxPrice dan MaxSize maka dilakukan operasi Array
+
+  let maxPrice = Math.max(...rooms.map(item => item.price))
+  let maxSize = Math.max(...rooms.map(item => item.size))
+
+dan menambahkan variable tersebut ke dalam setState
+            price:maxPrice,
+            maxPrice,
+            maxSize
+
+menambahkan fungsi 
+    handleChange = event =>{
+        const type = event.target.type
+        const name = event.target.name
+        const value = event.target.value
+        console.log(type,name,value);
+        
+    }
+
+    filterRooms = () => {
+        console.log("hello");
+        
+    }
+
+memanggil fungsi 
+  handleChange: this.handleChange
+
+-------------------------------------------------------4:04:
+melakukan mapping type ke option box sangat rumit
+untuk mendapatkan uniq value maka ambil semua isi array 
+dan Set terus map lagi masukkan ke array, dan dibuat 
+dinamis agar bisa dipanggil berulang2 utk pihan yang berbeda
+//get all uniq value
+const getUnique = (items,value) => {
+    return [...new Set(items.map(item => item[value]))]
+}
+
+pada pencarian tipe maka
+    //get Uniq types[] => dari array tipe di rooms
+    let types = getUnique(rooms,'type');
+    // add all => masukkan variable all ke array types[]
+    types = ['all',...types];
+    // map to jsx => map lagi ke jsx agar terbaca oleh jsx
+    types = types.map((item,index)=>{
+       return <option value={item} key={index}>{item}</option> 
+    })
+-------------------------------------------------------4:15:---FILTER
+untuk melihat apakah isi dari handleChange maka console log
+  console.log(`tipe: ${type}, name: ${name}, value: ${value}`);
+
+untuk mendapatkan nilai handlechange sesuai yang dipilih
+maka target= event.target, kemudian value jika tidak sama sebelumnya maka akan berubah
+
+  const target = event.target
+  const value = target.type === 'checkbox' ? target.checked:target.value
+  const name = event.target.name
+
+setelah itu maka dalam state nama[] diisi value dan menjalankan filterRooms dg nilai itu
+
+  this.setState({[name]:value},this.filterRooms)
+
+pada filterRoom memasukkan semua paramater yang terfilter di state kedalam variable
+  let {rooms,type,capacity,price,minSize,maxSize,breakfast,pets} = this.state
+
+kemudian memasukkan semua array tersebut dalam object tempRooms
+  let tempRooms = [...rooms];
+
+jika type tidak sama dg all maka tampilkan room dg room yang telah di filter by type
+jika == all maka tampilkan semuanya, kmd simpan kedalam tempRooms
+  if(type !=='all'){tempRooms = tempRooms.filter(room => room.type === type)}
+
+masukkan tempRoom kedalam sortedRoom untuk dirender
+  this.setState({sortedRooms:tempRooms})
+---------------------------------------------------------4:32:--FILTER
+filter guest pada RoomFilter.js adalah membuat select sama seperty type
+
+  {/*guest*/}
+  <div className="form-goup">
+    <label htmlFor="capacity">Guest</label>
+    <select name="capacity" id="capacity" value={capacity} className="form-control" onChange={handleChange}>{people}</select>
+  </div> 
+  {/*end guest*/}
+
+
+kemudian mencari uniq data dan dimasukkan kedalam option html
+  //get Uniq type for guest 
+  let people = getUnique(rooms,'capacity');
+  // map to jsx
+  people = people.map((item,index)=>{return <option value={item} key={index}>{item}</option>})
+
+lihat console log apakah yang berubah pada state =>component=>capacity 
+tetapi berbentuk string krn semua yang kembali dari selectbox html adalah string
+maka perlu dikembalikan ke bentuk angka dalam contect.js
+
+  //transform value
+  capacity = parseInt(capacity)
+  //filter by capacity
+  if(capacity !==1) {tempRooms = tempRooms.filter(room => room.capacity >= capacity)}
+
+---------------------------------------------------------------4:40:
+filter price 
+
+  {/*room price*/}
+  <div className="form-goup">
+    <label htmlFor="price">room price {price}</label>
+    <input type="range" name="price" min={minPrice} max={maxPrice} id="price" value={price} className="form-control" onChange={handleChange}/>
+  </div>
+  {/*end room price*/}
+
+kembalinya nilai string dari input html maka di transform kembali ke string
+  price = parseInt(price)
+
+  //filter by price 
+  tempRooms = tempRooms.filter(room => room.price <= price)
+
+-----------------------------------------------------------------
+filter size dan extras
+  {/*room size*/}
+  <div className="form-goup">
+    <label htmlFor="size">room size </label>
+    <div className="size-inputs">
+      <input type="number" name="minSize" id="size" value={minSize} onChange={handleChange}lassName="size-input"/>
+      <input type="number" name="maxSize" id="size" value={maxSize} onChange={handleChange}className="size-input"/>
+    </div>
+  </div>
+  {/*end room size*/}
+  {/*extras*/}
+  <div className="form-group">
+     <div className="single-extra">
+       <input type="checkbox" name="breakfast" id="breakfast" checked={breakfast} onChange={handleChange} />
+       <label htmlFor="breakfast">breakfast</label>
+     </div>
+     <div className="single-extra">
+        <input type="checkbox" name="pets" id="pets" checked={pets} onChange={handleChange} />
+        <label htmlFor="pets">pets</label>
+     </div>
+   </div>
+   {/*end extras*/}
+
+
+kemudian untuk filternya
+  //filter by size
+  tempRooms = tempRooms.filter(room=> room.size >= minSize && room.size <= maxSize)
+  //filter by breakfast
+  if (breakfast){tempRooms = tempRooms.filter(room => room.breakfast === true)}
+  //filter by pets
+  if (pets){tempRooms = tempRooms.filter(room => room.pets === true)}   
+
+----------------------------------------------------------------------4:57:
+Hosting dan database
+sebagai pengganti database, menggunakan contentful 
+
+contentful.com =>signup=>create space =>example =>create empty space
+spaceid : n9sne5158gcr
+space name : example
+
+create content model : beachResortRoomExample
+
+name text requ
+slug text requ
+price int requ
+type text requ
+size int requ
+capacity int requ
+pets bool requ
+breakfast bool requ
+featured bool requ
+desc longtext
+extras json
+images media mul
+
+kemudian isi semua data dengan data yang di data.js
+----------------------------------------------------------------5:24:
+contentful entry semua
+membuat file contenful.js di /src
+
+import {createClient} from 'contentful'
+
+export default createClient({
+    space: "n9sne5158gcr",
+    accessToken:
+    "pw8xievIDv2ZyfYhmKMWgCLMUsmCY63zZKqKx3AJkPM"
+})
+
+
+
+// Name RoomResort
+//Space ID n9sne5158gcr
+//Content Delivery API - access token pw8xievIDv2ZyfYhmKMWgCLMUsmCY63zZKqKx3AJkPM
+//Content Preview API - access token LenzHqery6kyXA96T2BMW9nCwpo8CElIAUWKAto-2To
+
+untuk mengambil data pada context.js
+import Client from './Contenful'
+Client.getEntries({
+    content_type:"beachResortRoomExample"
+}).then(response =>console.log(response.items))
+
+-----------------------------------------------------
+untuk mengambil semua item 
+
+//getData
+    getData = async() => {
+        try{
+            let response = await Client.getEntries({
+                content_type:"beachResortRoomExample",
+                //order: "sys.createdAt"
+                order: "-fields.price"
+            })
+        let rooms = this.formatData(response.items)
+        let featuredRooms = rooms.filter(room => room.featured === true);
+        let maxPrice = Math.max(...rooms.map(item => item.price))
+        let maxSize = Math.max(...rooms.map(item => item.size))
+        this.setState({
+            rooms, 
+            featuredRooms, 
+            sortedRooms : rooms, 
+            loading : false,
+            price:maxPrice,
+            maxPrice,
+            maxSize
+        });        
+
+        } catch (error){
+            console.log(error);
+            
+        }
+    }
+
+
+order : by bisa dimainkan sesuai kebutuhan (-)
+-------------------------------------------------5:41:
+https://app.netlify.com/teams/edycoleee/sites
+https://github.com/new
+react-beach-resort ==>create new
+
+echo "# react-beach-resort" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/edycoleee/react-beach-resort.git
+git push -u origin master
+
+---------------------------------------
+kemudian buat file env.development di luar src
+dan tambahkan .gitignore
+
+# testing
+/coverage
+.env.development
+
+
+
